@@ -86,7 +86,7 @@ public class Piece {
 //            return true;
 //        }
 //        return false;  ,,OR,
-        return targetCol <= 8 && targetCol > 0 && targetRow <= 8 && targetRow > 0;
+        return targetCol < 8 && targetCol >= 0 && targetRow < 8 && targetRow >= 0;
     }
 
     public Piece isHittingPiece(int targetCol, int targetRow){
