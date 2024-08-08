@@ -14,4 +14,25 @@ public class Queen extends Piece {
             image = getImage("res/piece/chess piece images v1.0/b-queen.png");
         }
     }
+
+    //can move both diagonally and horizontally/vertically
+    public boolean canMove(int targetCol, int targetRow) {
+        if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+            //checking diagonal
+            if(Math.abs(targetCol-preCol) / Math.abs(targetRow-preRow) == 1) {
+                if (isValidSquare(targetCol, targetRow) && !isPieceOnDiagonalLine(targetCol, targetRow)) {
+                    return true;
+                }
+            }
+
+            //checking horizontal/vertical
+            if(targetCol == col && targetRow == row){
+                if(isValidSquare(targetCol, targetRow) || !isPieceOnStraightLine(targetCol, targetRow)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

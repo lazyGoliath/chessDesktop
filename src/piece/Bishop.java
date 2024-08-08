@@ -14,4 +14,18 @@ public class Bishop extends Piece {
             image = getImage("res/piece/chess piece images v1.0/b-bishop.png");
         }
     }
+
+    //ratio of right/left to up/down movent should be 1
+    public boolean canMove(int targetCol, int targetRow) {
+        if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+            //if(Math.abs(targetCol-col) == Math.abs(targetRow-row)){ OR,
+            if(Math.abs(targetCol-preCol) / Math.abs(targetRow-preRow) == 1){
+                if(isValidSquare(targetCol, targetRow) && !isPieceOnDiagonalLine(targetCol, targetRow)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
