@@ -16,7 +16,7 @@ public class Piece {
     public int row, col, preRow, preCol;
     public int color;
     public Piece hittingPiece = null;
-    public boolean moved;
+    public boolean moved = false;
 
     public Piece(int color, int col, int row){
         this.color = color;
@@ -84,6 +84,7 @@ public class Piece {
         return false;
     }
     public boolean isWithinBoard(int targetCol, int targetRow) {
+        System.out.println("isWithinBoard() working");  //DEBUG
 //        if(targetCol<=8 && targetCol>0 && targetRow<=8 && targetRow>0) {
 //            return true;
 //        }
@@ -101,6 +102,7 @@ public class Piece {
         return null;
     }
     public boolean isValidSquare(int targetCol, int targetRow) {
+        System.out.println("Valid square working");  //DEBUG
         hittingPiece = isHittingPiece(targetCol, targetRow);
         if(hittingPiece == null) {  //vacant square
             return true;
@@ -116,9 +118,10 @@ public class Piece {
 
     //piece related specific properties
     public boolean isSameSquare(int targetCol, int targetRow) {
-        return targetCol == col && targetRow == row;
+        return targetCol == preCol && targetRow == preRow;
     }
     public boolean isPieceOnStraightLine(int targetCol, int targetRow) {
+        System.out.println("Piece on straight line working");  //DEBUG
         //when piece moving to the left
         for(int c = preCol-1; c>targetCol; c--){
             for(Piece piece : GamePanel.simPieces){
@@ -161,7 +164,38 @@ public class Piece {
 
         return false;
     }
+
+//    private boolean isPieceAt(int col, int row) {
+//        // Implement logic to check if a piece exists at (col, row)
+//        // For example, check the board array or piece list
+//        return board[col][row] != null;  // Assuming board is a 2D array of pieces
+//    }
+//
+//    private boolean isPieceOnStraightLine(int targetCol, int targetRow) {
+//        // Moving horizontally
+//        if (targetRow == row) {
+//            int startCol = Math.min(col, targetCol) + 1;
+//            int endCol = Math.max(col, targetCol);
+//            for (int c = startCol; c < endCol; c++) {
+//                if (isPieceAt(c, row)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        // Moving vertically
+//        else if (targetCol == col) {
+//            int startRow = Math.min(row, targetRow) + 1;
+//            int endRow = Math.max(row, targetRow);
+//            for (int r = startRow; r < endRow; r++) {
+//                if (isPieceAt(col, r)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false
+
     public boolean isPieceOnDiagonalLine(int targetCol, int targetRow) {
+        System.out.println("Piece on DIAGONAL line working");  //DEBUG
         if(targetRow < preRow) {
             if(targetCol < preCol) {
                 //when piece moving left-up
@@ -214,6 +248,11 @@ public class Piece {
         return false;
 
     }
+
+//    public boolean isSquareEmpty(int col, int row) {
+//        return board[col][row] == null; // Assuming board is a 2D array of pieces
+//    }
+
 
     public void draw(Graphics2D g2) {
         g2.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
