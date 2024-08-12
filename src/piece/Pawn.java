@@ -42,12 +42,12 @@ public class Pawn extends Piece {
                     && !isPieceOnStraightLine(targetCol, targetRow)){
                 return true;
             }
-//            //Diagonal movement & capture(if a piece is on a square diagonally in front of it)
+            //Diagonal movement & capture(if a piece is on a square diagonally in front of it)
             if(Math.abs(targetCol-preCol) == 1 && targetRow == preRow + moveValue && hittingPiece != null
                     && hittingPiece.color != color){
                 return true;
             }
-            
+
         }
 
         return false;

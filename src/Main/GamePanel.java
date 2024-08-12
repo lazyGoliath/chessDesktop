@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static ArrayList<Piece> pieces = new ArrayList<>();
     public static ArrayList<Piece> simPieces = new ArrayList<>();  //to revert the changes
     Piece activePiece = null;  //current piece held by the user to be updated
+    public static Piece castlingPiece = null;
 
     //COLOR
     public static final int WHITE = 0;
@@ -176,6 +177,11 @@ public class GamePanel extends JPanel implements Runnable {
                     activePiece.updatePosition();
                     System.out.println("Moved piece to: " + activePiece); // Debug statement
 
+                    //update rook's position
+                    if(castlingPiece != null){
+                        castlingPiece.updatePosition();
+                    }
+
                     changePlayer();  //switch to opponent
                 } else{
                     //invalid move, reset everything
@@ -194,6 +200,13 @@ public class GamePanel extends JPanel implements Runnable {
         // Reset the piece list in every loop
         //This is basically for restoring the removed piece during the simulation
         copyPieces(pieces, simPieces);
+
+        // Reset the castling piece position if move unconfirmed
+        if(castlingPiece != null){
+            castlingPiece.col = castlingPiece.preCol;
+            castlingPiece.x = castlingPiece.getX(castlingPiece.preCol);
+            castlingPiece = null;
+        }
         //if a piece is being held, simulate a move
         activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;//subtracted so that mouse is at the centre of piece
         activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
@@ -213,6 +226,20 @@ public class GamePanel extends JPanel implements Runnable {
             if(activePiece.hittingPiece != null){  //hitting opponent piece
                 simPieces.remove(activePiece.hittingPiece.getIndex());  //still thinking phase
             }
+
+            checkCastling();
+        }
+    }
+
+    private void checkCastling() {
+        if(castlingPiece != null ){
+            if(castlingPiece.col == 0){  //left castling piece
+                castlingPiece.col += 3;
+            }
+            if(castlingPiece.col == 7){  //right castling piece
+                 castlingPiece.col -= 2;
+            }
+            castlingPiece.x = castlingPiece.getX(castlingPiece.col);
         }
     }
 
