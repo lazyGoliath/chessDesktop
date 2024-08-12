@@ -19,7 +19,7 @@ public class Queen extends Piece {
     public boolean canMove(int targetCol, int targetRow) {
         if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
             //checking diagonal
-            if(Math.abs(targetCol-preCol) / Math.abs(targetRow-preRow) == 1) {
+            if(Math.abs(targetCol-preCol) == Math.abs(targetRow-preRow)) {
                 if (isValidSquare(targetCol, targetRow) && !isPieceOnDiagonalLine(targetCol, targetRow)) {
                     return true;
                 }

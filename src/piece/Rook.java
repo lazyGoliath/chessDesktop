@@ -15,15 +15,24 @@ public class Rook extends Piece {
 
     //can move only horizontally or vertically
     public boolean canMove(int targetCol, int targetRow) {
-        if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+        System.out.println("Can Move working");  // DEBUG
+
+        if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)) {
+            // Check if the move is strictly horizontal or vertical
 //            if(targetCol>0 && targetCol<8 && (Math.abs(targetRow - preRow) == 0)
 //                    || targetRow>0 && targetRow<8 && (Math.abs(targetCol - preCol) == 0)){
-            if(targetCol == col && targetRow == row){
-                if(isValidSquare(targetCol, targetRow) && !isPieceOnStraightLine(targetCol, targetRow)){
-                    return true;
+            if (targetCol == col || targetRow == row) {
+                // Check for obstacles on the path
+                if (!isPieceOnStraightLine(targetCol, targetRow)) {
+                    // Check if the target square is valid (e.g., not occupied by a friendly piece)
+                    if (isValidSquare(targetCol, targetRow)) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
 }
+
+

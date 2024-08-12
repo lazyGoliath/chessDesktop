@@ -18,8 +18,8 @@ public class Bishop extends Piece {
     //ratio of right/left to up/down movent should be 1
     public boolean canMove(int targetCol, int targetRow) {
         if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
-            //if(Math.abs(targetCol-col) == Math.abs(targetRow-row)){ OR,
-            if(Math.abs(targetCol-preCol) / Math.abs(targetRow-preRow) == 1){
+            if(Math.abs(targetCol-col) == Math.abs(targetRow-row)){
+            //if(Math.abs(targetCol-preCol) / Math.abs(targetRow-preRow) == 1){
                 if(isValidSquare(targetCol, targetRow) && !isPieceOnDiagonalLine(targetCol, targetRow)){
                     return true;
                 }
