@@ -22,6 +22,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static ArrayList<Piece> simPieces = new ArrayList<>();  //to revert the changes
     Piece activePiece = null;  //current piece held by the user to be updated
     public static Piece castlingPiece = null;
+    ArrayList<Piece> promotionPieces = new ArrayList<>();
 
     //COLOR
     public static final int WHITE = 0;
@@ -31,6 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
     //BOOLEANS
     boolean canMove;
     boolean validSquare;
+    boolean promotion;
 
     //constructor to initialize the panel specs
     public GamePanel(){
@@ -38,6 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
         setBackground(Color.BLACK);
 
         setPieces();
+        //testPromotion();
         copyPieces(pieces, simPieces);
 
         //read mouse motion
@@ -90,6 +93,11 @@ public class GamePanel extends JPanel implements Runnable {
         pieces.add(new Queen(BLACK, 3, 0));
         pieces.add(new King(BLACK, 4, 0));
     }
+
+//    private void testPromotion(){
+//        pieces.add(new Pawn(WHITE, 0, 5));
+//        pieces.add(new Pawn(BLACK, 7, 3));
+//    }
 
     private void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target){
         target.clear();
@@ -148,50 +156,62 @@ public class GamePanel extends JPanel implements Runnable {
 
     //updates player position and make changes
     private void update() {
-        // Handle Mouse Pressed
-        if (mouse.pressed) {
-            if (activePiece == null) {
-                // Check if we can pick up a new piece
-                for (Piece piece : simPieces) {
-                    if (piece.color == currentColor && piece.col == mouse.x / Board.SQUARE_SIZE
-                            && piece.row == mouse.y / Board.SQUARE_SIZE) {
-                        // Pick up the piece if the color and position match
-                        activePiece = piece;
-                        System.out.println("Picked up piece: " + activePiece); // Debug statement
-                        break; // Exit the loop once the piece is found
+
+        //game temporarily stopped until promoting piece selected
+        if(promotion){
+            promoting();
+        } else {
+            // Handle Mouse Pressed
+            if (mouse.pressed) {
+                if (activePiece == null) {
+                    // Check if we can pick up a new piece
+                    for (Piece piece : simPieces) {
+                        if (piece.color == currentColor && piece.col == mouse.x / Board.SQUARE_SIZE
+                                && piece.row == mouse.y / Board.SQUARE_SIZE) {
+                            // Pick up the piece if the color and position match
+                            activePiece = piece;
+                            System.out.println("Picked up piece: " + activePiece); // Debug statement
+                            break; // Exit the loop once the piece is found
+                        }
                     }
+                } else {
+                    // Simulate the move if a piece is already being held
+                    simulate();
                 }
             } else {
-                // Simulate the move if a piece is already being held
-                simulate();
-            }
-        } else {
-            // Handle Mouse Released
-            if (activePiece != null) {
-                // Adjust the position of the piece
-                if(validSquare) {
+                // Handle Mouse Released
+                if (activePiece != null) {
+                    // Adjust the position of the piece
+                    if(validSquare) {
 
-                    // MOVE CONFIRMED
-                    //Update the piece list in case a piece has been captured and removed
-                    copyPieces(simPieces, pieces);
-                    activePiece.updatePosition();
-                    System.out.println("Moved piece to: " + activePiece); // Debug statement
+                        // MOVE CONFIRMED
+                        //Update the piece list in case a piece has been captured and removed
+                        copyPieces(simPieces, pieces);
+                        activePiece.updatePosition();
+                        System.out.println("Moved piece to: " + activePiece); // Debug statement
 
-                    //update rook's position
-                    if(castlingPiece != null){
-                        castlingPiece.updatePosition();
+                        //update rook's position
+                        if(castlingPiece != null){
+                            castlingPiece.updatePosition();
+                        }
+
+                        if(canPromote()){
+                            promotion = true;
+                        } else {
+                            changePlayer();  //switch to opponent
+                        }
+
+                    } else{
+                        //invalid move, reset everything
+                        copyPieces(pieces, simPieces);
+                        // Reset activePiece to allow picking up another piece
+                        activePiece.resetPosition();
+                        activePiece = null;
                     }
-
-                    changePlayer();  //switch to opponent
-                } else{
-                    //invalid move, reset everything
-                    copyPieces(pieces, simPieces);
-                    // Reset activePiece to allow picking up another piece
-                    activePiece.resetPosition();
-                    activePiece = null;
                 }
             }
         }
+
     }
 
     //thinking phase
@@ -265,6 +285,42 @@ public class GamePanel extends JPanel implements Runnable {
         activePiece = null;
     }
 
+    private boolean canPromote(){
+        if(activePiece.type == Type.PAWN){
+            if(activePiece.color == BLACK && activePiece.row == 7 || activePiece.color == WHITE && activePiece.row == 0){
+                promotionPieces.clear();
+                promotionPieces.add(new Rook(currentColor, 9, 2));
+                promotionPieces.add(new Knight(currentColor, 9, 3));
+                promotionPieces.add(new Bishop(currentColor, 9, 4));
+                promotionPieces.add(new Queen(currentColor, 9, 5));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void promoting(){
+        if(mouse.pressed){
+            for(Piece piece : promotionPieces){
+                if(piece.col == mouse.x / Board.SQUARE_SIZE && piece.row == mouse.y / Board.SQUARE_SIZE){
+                    switch(piece.type){
+                        case ROOK : simPieces.add(new Rook(currentColor, activePiece.col, activePiece.row));break;
+                        case KNIGHT : simPieces.add(new Knight(currentColor, activePiece.col, activePiece.row));break;
+                        case BISHOP : simPieces.add(new Bishop(currentColor, activePiece.col, activePiece.row));break;
+                        case QUEEN : simPieces.add(new Queen(currentColor, activePiece.col, activePiece.row));break;
+                        default: break;
+                    }
+                    simPieces.remove(activePiece.getIndex());
+                    activePiece = null;
+                    promotion = false;
+                    copyPieces(simPieces, pieces);
+                    changePlayer();
+                }
+            }
+        }
+    }
+
     //draw those changes graphically on the board
     public void paintComponent(Graphics g) {
 
@@ -304,10 +360,20 @@ public class GamePanel extends JPanel implements Runnable {
         g2d.setFont(new Font("Arial", Font.BOLD, 40));
         g2d.setColor(Color.WHITE);
 
-        if(currentColor == WHITE){
-            g2d.drawString("White's turn", 840, 550);
+        // displaying promotion pieces
+        if(promotion){
+            g2d.drawString("Promoting to :", 815, 150);
+            for(Piece piece : promotionPieces){
+                g2d.drawImage(piece.image, piece.getX(piece.col), piece.getY(piece.row),
+                        Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
+            }
         } else {
-            g2d.drawString("Black's turn", 840, 250);
+            if(currentColor == WHITE){
+                g2d.drawString("White's turn", 840, 550);
+            } else {
+                g2d.drawString("Black's turn", 840, 250);
+            }
         }
+
     }
 }
