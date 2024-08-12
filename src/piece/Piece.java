@@ -81,8 +81,10 @@ public class Piece {
     }
 
     public boolean canMove(int targetCol, int targetRow) {
+
         return false;
     }
+
     public boolean isWithinBoard(int targetCol, int targetRow) {
         System.out.println("isWithinBoard() working");  //DEBUG
 //        if(targetCol<=8 && targetCol>0 && targetRow<=8 && targetRow>0) {
