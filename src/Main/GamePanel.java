@@ -397,7 +397,7 @@ public class GamePanel extends JPanel implements Runnable {
                 //checks if move is safe for the king or not
                 if(isIllegal(activePiece)){
                     //set background color of current piece box to white
-                    g2d.setColor(Color.RED);
+                    g2d.setColor(Color.GRAY);
                     //change opacity
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     //apply changes to the box
