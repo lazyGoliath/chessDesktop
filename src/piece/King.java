@@ -15,6 +15,7 @@ public class King extends Piece {
     }
 
     public boolean canMove(int targetCol, int targetRow) {
+        System.out.println("Can Move working");  //DEBUG
 
         //checking all 8 directions of possible movements
         if(isWithinBoard(targetCol, targetRow)){

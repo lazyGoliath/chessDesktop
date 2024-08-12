@@ -29,16 +29,20 @@ public class Pawn extends Piece {
         //check the hitting piece
         hittingPiece = isHittingPiece(targetCol, targetRow);
 
-        //checking if pawn has moved or not
-        if(moved){  //already displaced from original position
-            //pawn will move only 1 square
-            if(targetCol == preCol && targetRow == preRow + moveValue && hittingPiece == null){
-                return true;
-            }
-        } else {
-            if(targetCol == preCol && targetRow == preRow + moveValue*2 && hittingPiece == null){
-                return true;
-            }
+        /// PAWN MOVEMENT
+        //1 square movement
+        if(targetCol == preCol && targetRow == preRow + moveValue && hittingPiece == null){
+            return true;
+        }
+        //2 square movement
+        if(targetCol == preCol && targetRow == preRow + moveValue*2 && hittingPiece == null && moved){
+                //&& isPieceOnStraightLine(targetCol, targetRow)){
+            return true;
+        }
+        //Diagonal movement & capture(if a piece is on a square diagonally in front of it)
+        if(Math.abs(targetCol-preCol) == 1 && targetRow == preRow + moveValue && hittingPiece != null
+                && hittingPiece.color != color){
+            return true;
         }
 
         if(isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){

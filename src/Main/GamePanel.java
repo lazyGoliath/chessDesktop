@@ -152,10 +152,8 @@ public class GamePanel extends JPanel implements Runnable {
             if (activePiece == null) {
                 // Check if we can pick up a new piece
                 for (Piece piece : simPieces) {
-                    if (piece.color == currentColor &&
-                            piece.col == mouse.x / Board.SQUARE_SIZE &&
-                            piece.row == mouse.y / Board.SQUARE_SIZE) {
-
+                    if (piece.color == currentColor && piece.col == mouse.x / Board.SQUARE_SIZE
+                            && piece.row == mouse.y / Board.SQUARE_SIZE) {
                         // Pick up the piece if the color and position match
                         activePiece = piece;
                         System.out.println("Picked up piece: " + activePiece); // Debug statement
@@ -177,6 +175,8 @@ public class GamePanel extends JPanel implements Runnable {
                     copyPieces(simPieces, pieces);
                     activePiece.updatePosition();
                     System.out.println("Moved piece to: " + activePiece); // Debug statement
+
+                    changePlayer();  //switch to opponent
                 } else{
                     //invalid move, reset everything
                     copyPieces(pieces, simPieces);
@@ -216,6 +216,16 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    //switch turns
+    private void changePlayer(){
+        if(currentColor == BLACK){
+            currentColor = WHITE;
+        } else {
+            currentColor = BLACK;
+        }
+        activePiece = null;
+    }
+
     //draw those changes graphically on the board
     public void paintComponent(Graphics g) {
 
@@ -248,6 +258,17 @@ public class GamePanel extends JPanel implements Runnable {
 
             //draw the active piece in the end, so it won't be hidden by the board or the colored square
             activePiece.draw(g2d);
+        }
+
+        //STATUS MESSAGES
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setFont(new Font("Arial", Font.BOLD, 40));
+        g2d.setColor(Color.WHITE);
+
+        if(currentColor == WHITE){
+            g2d.drawString("White's turn", 840, 550);
+        } else {
+            g2d.drawString("Black's turn", 840, 250);
         }
     }
 }
