@@ -248,6 +248,10 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             checkCastling();
+
+            if(isIllegal(activePiece)){
+                validSquare = true;
+            }
         }
     }
 
@@ -300,6 +304,19 @@ public class GamePanel extends JPanel implements Runnable {
         return false;
     }
 
+    //checking if the move is safe for the king
+    private boolean isIllegal(Piece king){
+        if(king.type == Type.KING){
+            for(Piece piece : simPieces){
+                if(piece != king && piece.color != king.color && piece.canMove(king.col, king.row)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private void promoting(){
         if(mouse.pressed){
             for(Piece piece : promotionPieces){
@@ -339,16 +356,31 @@ public class GamePanel extends JPanel implements Runnable {
         if(activePiece != null) {
 
             if(canMove){
-                //set background color of current piece box to white
-                g2d.setColor(Color.WHITE);
-                //change opacity
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                //apply changes to the box
-                g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
-                        Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+                //checks if move is safe for the king or not
+                if(isIllegal(activePiece)){
+                    //set background color of current piece box to white
+                    g2d.setColor(Color.RED);
+                    //change opacity
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    //apply changes to the box
+                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+                            Board.SQUARE_SIZE, Board.SQUARE_SIZE);
 
-                //reset opacity when piece is removed from a box
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                    //reset opacity when piece is removed from a box
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                } else {
+                    //set background color of current piece box to white
+                    g2d.setColor(Color.WHITE);
+                    //change opacity
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    //apply changes to the box
+                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+                            Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+
+                    //reset opacity when piece is removed from a box
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                }
+
             }
 
             //draw the active piece in the end, so it won't be hidden by the board or the colored square
