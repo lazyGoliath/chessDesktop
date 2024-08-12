@@ -2,6 +2,7 @@ package piece;
 
 import Main.Board;
 import Main.GamePanel;
+import Main.Type;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,12 +12,14 @@ import java.io.IOException;
 
 public class Piece {
 
+    public Type type;
     public BufferedImage image;
     public int x, y;
     public int row, col, preRow, preCol;
     public int color;
     public Piece hittingPiece = null;
     public boolean moved = false;
+    public boolean twoStepped = false;
 
     public Piece(int color, int col, int row){
         this.color = color;
@@ -260,3 +263,4 @@ public class Piece {
         g2.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
     }
 }
+

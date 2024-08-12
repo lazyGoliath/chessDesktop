@@ -2,10 +2,14 @@ package piece;
 
 import Main.Board;
 import Main.GamePanel;
+import Main.Type;
 
 public class King extends Piece {
     public King(int color, int col, int row) {
         super(color, col, row);
+
+        // assigning ID to each KING
+        type = Type.KING;
 
         if(color == GamePanel.WHITE){
             image = getImage("res/piece/chess piece images v1.0/w-king.png");

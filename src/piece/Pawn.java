@@ -1,12 +1,16 @@
 package piece;
 
 import Main.GamePanel;
+import Main.Type;
 
 import java.awt.*;
 
 public class Pawn extends Piece {
     public Pawn(int color, int col, int row) {
         super(color, col, row);
+
+        // assigning ID to each PAWN
+        type = Type.PAWN;
 
         if( color == GamePanel.WHITE){
             image = getImage("res/piece/chess piece images v1.0/w-pawn.png");
@@ -47,7 +51,6 @@ public class Pawn extends Piece {
                     && hittingPiece.color != color){
                 return true;
             }
-
         }
 
         return false;
