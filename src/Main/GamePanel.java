@@ -149,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             if(delta >= 1){
                 update();
-                repaint();
+                repaint();  // calls paint component method
                 delta--;
             }
         }
@@ -162,7 +162,7 @@ public class GamePanel extends JPanel implements Runnable {
         //game temporarily stopped until promoting piece selected
         if(promotion){
             promoting();
-        } else {
+        } else if(!gameOver){
             // Handle Mouse Pressed
             if (mouse.pressed) {
                 if (activePiece == null) {
@@ -197,16 +197,15 @@ public class GamePanel extends JPanel implements Runnable {
                             castlingPiece.updatePosition();
                         }
 
-                            if(isKingInCheck()){
-                                //TODO : game over
+                        if(isKingInCheck() && isCheckMate()){
+                            gameOver = true;
                             } else {
                                 if(canPromote()){
                                     promotion = true;
                                 } else {
                                     changePlayer();  //switch to opponent
                                 }
-                            }
-
+                        }
                     } else{
                         //invalid move, reset everything
                         copyPieces(pieces, simPieces);
@@ -255,7 +254,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             checkCastling();
 
-            if(isIllegal(activePiece)){
+            if(!isIllegal(activePiece) || !opponentCanCaptureKing()){
                 validSquare = true;
             }
         }
@@ -291,6 +290,167 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         return king;
+    }
+
+    /// PROTECTING KING FROM A CHECKMATE POSSIBILITIES
+
+    //capture the checking piece
+
+    //1.) if king can move to a square not under attack
+    private boolean isCheckMate(){
+        Piece opponentKing = getKing(true);
+
+        if(kingCanMove(opponentKing)){
+            return false;
+        } else {
+            //2.) if another king's ally piece blocks the check
+            //find difference in position between the checking piece and king
+            int colDiff = Math.abs(opponentKing.col - checkPiece.col);
+            int rowDiff = Math.abs(opponentKing.row - checkPiece.row);
+
+            //estimating the type of attacking piece based on difference
+            if(colDiff == 0){
+                //checking piece attacking vertically
+
+                //checking if checkingP attacking from above or below the king
+                if(checkPiece.row < opponentKing.row){
+                    //checkingP attacking from above
+                    for(int row = checkPiece.row; row < opponentKing.row; row++){
+                        for(Piece piece : simPieces){
+                            if(piece != opponentKing && piece.color != currentColor && piece.canMove(checkPiece.col, row)){
+                                return false;  //checkmate saved!!
+                            }
+                        }
+                    }
+                }
+                if(checkPiece.row > opponentKing.row){
+                    //checkingP attacking from below
+                    for(int row = checkPiece.row; row > opponentKing.row; row--){
+                        for(Piece piece : simPieces){
+                            if(piece != opponentKing && piece.color != currentColor && piece.canMove(checkPiece.col, row)){
+                                return false;  //checkmate saved!!
+                            }
+                        }
+                    }
+                }
+            } else if(rowDiff == 0){
+                //checking piece attacking horizontally
+
+                //checking if checkingP attacking from left or right side of the king
+                if(checkPiece.col < opponentKing.col){
+                    //checkingP attacking from left side
+                    for(int col = checkPiece.col; col < opponentKing.col; col++){
+                        for(Piece piece : simPieces){
+                            if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, checkPiece.row)){
+                                return false;  //checkmate saved!!
+                            }
+                        }
+                    }
+                }
+                if(checkPiece.col > opponentKing.col){
+                    //checkingP attacking from right side
+                    for(int col = checkPiece.row; col > opponentKing.row; col--){
+                        for(Piece piece : simPieces){
+                            if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, checkPiece.row)){
+                                return false;  //checkmate saved!!
+                            }
+                        }
+                    }
+                }
+            } else if(colDiff == rowDiff){
+                //checking piece attacking diagonally
+
+                //checking if checkingP attacking diagonally from above or below the king
+                if(checkPiece.row < opponentKing.row){
+                    //checkingP attacking from above
+                    if(checkPiece.col < opponentKing.col){
+                        //checkingP attacking from upper-left
+                        for(int col = checkPiece.col, row = checkPiece.row; col < opponentKing.col; col++, row++){
+                            for(Piece piece : simPieces){
+                                if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, row)){
+                                    return false;  //check saved
+                                }
+                            }
+                        }
+                    }
+                    if(checkPiece.col > opponentKing.col){
+                        //checkingP attacking from upper-right
+                        for(int col = checkPiece.col, row = checkPiece.row; col > opponentKing.col; col--, row++){
+                            for(Piece piece : simPieces){
+                                if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, row)){
+                                    return false;  //check saved
+                                }
+                            }
+                        }
+                    }
+                }
+                if(checkPiece.row > opponentKing.row){
+                    //checkingP attacking from below
+                    if(checkPiece.col < opponentKing.col){
+                        //checkingP attacking from lower-left
+                        for(int col = checkPiece.col, row = checkPiece.row; col < opponentKing.col; col++, row--){
+                            for(Piece piece : simPieces){
+                                if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, row)){
+                                    return false;  //check saved
+                                }
+                            }
+                        }
+                    }
+                    if(checkPiece.col > opponentKing.col){
+                        //checkingP attacking from lower-right
+                        for(int col = checkPiece.col, row = checkPiece.row; col > opponentKing.col; col--, row--){
+                            for(Piece piece : simPieces){
+                                if(piece != opponentKing && piece.color != currentColor && piece.canMove(col, row)){
+                                    return false;  //check saved
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+    private boolean kingCanMove(Piece king){
+
+        //simulate if there is any square where the king can move to
+        if(isValidMove(king, -1, -1)){ return true; }  //top-left
+        if(isValidMove(king, -1, 0)){ return true; }   //top-up
+        if(isValidMove(king, -1, 1)){ return true; }   //top-right
+        if(isValidMove(king, 0, -1)){ return true; }   //side-left
+        if(isValidMove(king, 0, 1)){ return true; }    //side-right
+        if(isValidMove(king, 1, -1)){ return true; }   //bottom-left
+        if(isValidMove(king, 1, 0)){ return true; }    //bottom-down
+        if(isValidMove(king, 1, 1)){ return true; }    //bottom-right
+
+        return false;  //if no possible king move
+    }
+    private boolean isValidMove(Piece king, int rowPlus, int colPlus){
+
+        boolean isValidMove = false;
+
+        // update the king's position for now
+        king.col += colPlus;
+        king.row += rowPlus;
+
+        //check if new square is safe or not
+        if(king.canMove(king.col, king.row)){
+            //remove if king is hitting any piece(opponent)
+            if(king.hittingPiece != null){
+                simPieces.remove(king.hittingPiece.getIndex());
+            }
+            //if move is not illegal
+            if(!isIllegal(king)){
+                isValidMove = true;
+            }
+        }
+
+        //Reset the king's position and remove the removed piece
+        king.resetPosition();
+        copyPieces(pieces, simPieces);
+
+        return isValidMove;
     }
 
     private void checkCastling() {
@@ -355,6 +515,20 @@ public class GamePanel extends JPanel implements Runnable {
         return false;
     }
 
+    //checks if move is safe for king in check condition
+    private boolean opponentCanCaptureKing(){
+
+        Piece king = getKing(true);  //current colour's king
+
+        for(Piece piece : simPieces){
+            if(piece.color != king.color && piece.canMove(king.col, king.row)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void promoting(){
         if(mouse.pressed){
             for(Piece piece : promotionPieces){
@@ -395,7 +569,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             if(canMove){
                 //checks if move is safe for the king or not
-                if(isIllegal(activePiece)){
+                if(isIllegal(activePiece) || opponentCanCaptureKing()){
                     //set background color of current piece box to white
                     g2d.setColor(Color.GRAY);
                     //change opacity
@@ -453,7 +627,21 @@ public class GamePanel extends JPanel implements Runnable {
                     g2d.drawString("is in Check!", 840, 150);
                 }
             }
+            if(gameOver){
+                String s ="";
+                if(currentColor == WHITE){
+                    s = "WHITE WINS";
+                } else {
+                    s = "BLACK WINS";
+                }
+                g2d.setFont(new Font("Arial", Font.PLAIN, 40));
+                g2d.setColor(Color.RED);
+                g2d.drawString("Game", 840, 300);
+                g2d.drawString("Over !!", 840, 350);
+                g2d.setFont(new Font("Arial", Font.BOLD, 40));
+                g2d.setColor(Color.GREEN);
+                g2d.drawString(s, 200, 420);
+            }
         }
-
     }
 }
