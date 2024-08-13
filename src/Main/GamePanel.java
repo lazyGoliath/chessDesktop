@@ -4,7 +4,14 @@ import piece.*;
 
 import javax.swing.JPanel;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.AlphaComposite;
+import java.awt.RenderingHints;
+
 import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements Runnable {
